@@ -1,0 +1,5 @@
+fix weird rotation when turning camera
+fix weird motion locking when moving camera
+add better lighting effects
+add method to restart
+add esc menu? 

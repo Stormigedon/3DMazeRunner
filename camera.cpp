@@ -24,12 +24,13 @@ void Camera::roll(float radians){
 }
 
 void Camera::move(float deltaTime) {
-	if(rotation != 0) {
-		roll(rotation * sensitivity);
-	}
+	// if(rotation != 0) {
+	// 	roll(rotation * sensitivity);
+	// }
 	//this avoids normalizing a zero vector, very bad, much NaN.
-	if((motion.x + motion.y + motion.z) == 0) return;
+	if((motion.x == 0 && motion.y == 0 && motion.z == 0)) return;
 	glm::vec3 normalMotion = glm::normalize(motion) * speed;
+	//std::cout<<"normalMotion: ("<<normalMotion.x<<","<<normalMotion.y<<","<<normalMotion.z<<")"<<std::endl;
 	if(planeMode) {normalMotion.y = 0;}
 	position = position + ((normalMotion.x * front) + (normalMotion.y * top) + (normalMotion.z * right)) * deltaTime;
 	if(planeMode) {
@@ -73,6 +74,8 @@ Camera::Camera(glm::vec3 _position, glm::vec3 _front, glm::vec3 _top, float _sen
 	motion = glm::vec3(0.0f);
 	rotation = 0;
 	planeMode = mode;
+	pitchAngle = std::acos(_front.y);
+	yawAngle = std::acos((_front.x / std::sin(pitchAngle)));
 	updateProjection();
 }
 
@@ -112,7 +115,6 @@ bool Camera::eventUpdate(SDL_Event *event) {
 						break;
 				}
 			}
-
 			break;
 		case SDL_KEYUP:
 			switch (event->key.keysym.sym) {
@@ -143,16 +145,35 @@ bool Camera::eventUpdate(SDL_Event *event) {
 			}
 			break;
 		case SDL_MOUSEMOTION:
-			glm::vec2 mouseMovement;
-			mouseMovement = glm::vec2(event->motion.xrel,event->motion.yrel);
-			glm::vec3 rotationAxis;
-			rotationAxis = glm::normalize(mouseMovement.x * top + mouseMovement.y * right);
-			rotate(rotationAxis, mouseMovement.length() * -sensitivity);
+			pitchAngle += event->motion.yrel * sensitivity;
+			//std::cout<<pitchAngle<<std::endl;
+			if(pitchAngle > glm::radians(179.0f)) {pitchAngle = glm::radians(179.0f);}
+			else if(pitchAngle < 0.01f) {pitchAngle = 0.01f;}
+
+			yawAngle += event->motion.xrel * sensitivity;
+			if(yawAngle >= 6.28318) {yawAngle = 0;}
+			else if(yawAngle < 0) {yawAngle = 6.28318;}
+
+			front.x = std::sin(pitchAngle) * std::cos(yawAngle);
+			front.z = std::sin(pitchAngle) * std::sin(yawAngle);
+			front.y = std::cos(pitchAngle);
+
+			right = glm::cross(front, glm::vec3(0.0f,1.0f,0.0f));
+			top = glm::cross(right, front);
+			// i'll have to add a fix based on some world malarky later
+			// glm::vec2 mouseMovement;
+			// mouseMovement = glm::vec2(event->motion.xrel,event->motion.yrel);
+			// glm::vec3 rotationAxis;
+			// rotationAxis = glm::normalize(mouseMovement.x * top + mouseMovement.y * right);
+			// rotate(rotationAxis, mouseMovement.length() * -sensitivity);
+
 			// pitch(event->motion.yrel * -sensitivity);
 			// yaw(event->motion.xrel * -sensitivity);
 			break;
 		default:
 			break;
 	}
+
+	//std::cout<<"Motion: ("<<motion.x<<","<<motion.y<<","<<motion.z<<")"<<std::endl;
 	return true;
 }

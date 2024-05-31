@@ -182,14 +182,14 @@ int main() {
 		std::cout<<std::endl;
 	}
 
-	Application apphoe(800,600,"Maze 3D X-treme");
+	Application appController(800,600,"Maze 3D X-treme");
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_CaptureMouse(SDL_FALSE);
 	Camera camera(glm::vec3(0, 0, 0), glm::vec3(0,0,1),glm::vec3(0,1,0), 0.01,75,2.5,800/600,true);
 	
-	apphoe.addSDLEventListener(&camera, SDL_KEYDOWN);
-	apphoe.addSDLEventListener(&camera, SDL_KEYUP);
-	apphoe.addSDLEventListener(&camera, SDL_MOUSEMOTION);
+	appController.addSDLEventListener(&camera, SDL_KEYDOWN);
+	appController.addSDLEventListener(&camera, SDL_KEYUP);
+	appController.addSDLEventListener(&camera, SDL_MOUSEMOTION);
 
 	Shader mazeShade("./vertexShader.vs","./fragmentShader.fs");
 
@@ -209,7 +209,7 @@ int main() {
 	
 	//star date 2024-05-08 11.05 I can finally start rendering things, after ALLL of that other work
 	//rendering FINALLY funcitons 2024-05-20 ~06.27 I hate textures now. 
-	SDL_Window *window = apphoe.getWindowPtr();
+	SDL_Window *window = appController.getWindowPtr();
 	SDL_ShowWindow(window);
 	float R=0.2f, G=0.3f, B=0.3f;
 	glClearColor(0.0f, 0.01f, 0.06f, 1.0f);
@@ -219,24 +219,27 @@ int main() {
 	float deltaTime = 1;
 	int playerX, playerY;
 
-	while(apphoe.update()) {
+	mazeShade.use();
+	mazeShade.setVec3("goalPosition", glm::vec3(Xe,0.0f,Ye));
+
+	while(appController.update()) {
 		then = SDL_GetTicks();
 		camera.move(deltaTime);
 		//do some simple collision detection
 		playerX = (int)(camera.getPosition().x+0.5);
 		playerY = (int)(camera.getPosition().z+0.5);
 		MazeSegment3D occupiedSection = Maze[playerX][playerY];
-		if((camera.getPosition().x - playerX) < -0.35 && (occupiedSection.type & 0b0001)) {
-			camera.setXPosition(playerX - 0.35);
+		if((camera.getPosition().x - playerX) < -0.30 && (occupiedSection.type & 0b0001)) {
+			camera.setXPosition(playerX - 0.30);
 		}	
-		if((camera.getPosition().x - playerX) > 0.35 && (occupiedSection.type & 0b0100)) {
-			camera.setXPosition(playerX + 0.35);
+		if((camera.getPosition().x - playerX) > 0.30 && (occupiedSection.type & 0b0100)) {
+			camera.setXPosition(playerX + 0.30);
 		}
-		if((camera.getPosition().z - playerY) < -0.35 && (occupiedSection.type & 0b1000)) {
-			camera.setZPosition(playerY - 0.35);
+		if((camera.getPosition().z - playerY) < -0.30 && (occupiedSection.type & 0b1000)) {
+			camera.setZPosition(playerY - 0.30);
 		}
-		if((camera.getPosition().z - playerY) > 0.35 && (occupiedSection.type & 0b0010)) {
-			camera.setZPosition(playerY + 0.35);
+		if((camera.getPosition().z - playerY) > 0.30 && (occupiedSection.type & 0b0010)) {
+			camera.setZPosition(playerY + 0.30);
 		}
 
 
@@ -292,8 +295,8 @@ int main() {
 		// do this at the end to avoid a seg fault lol. :'D
 		if(playerX == Xe && playerY == Ye) {
 			std::cout<<"YOU WIN!!!"<<std::endl;
-			apphoe.quit();
-			//std::cout<<apphoe.update()<<std::endl;
+			appController.quit();
+			//std::cout<<appController.update()<<std::endl;
 		}
 		//std::cout<<"Delta: "<<deltaTime<<std::endl;
 	}

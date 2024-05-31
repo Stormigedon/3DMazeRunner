@@ -1,5 +1,7 @@
-fix weird rotation when turning camera
-fix weird motion locking when moving camera
+ *DONE* -X- fix weird rotation when turning camera
+ *DONE* -X- fix weird motion locking when moving camera  #don't try to use clever math for no damned reason
 add better lighting effects
 add method to restart
 add esc menu? 
+improve collision detection on walls
+-%50- the target must glow #just need the walls to block the glow now

@@ -11,6 +11,8 @@ class Camera : public SDLEventListener {
 	// glm::vec3 right;
 	// glm::vec3 motion;
 
+	float yawAngle;
+	float pitchAngle;
 	glm::mat4 projection;
 	glm::mat4 view;
 	int rotation;

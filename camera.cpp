@@ -177,3 +177,7 @@ bool Camera::eventUpdate(SDL_Event *event) {
 	//std::cout<<"Motion: ("<<motion.x<<","<<motion.y<<","<<motion.z<<")"<<std::endl;
 	return true;
 }
+
+glm::vec3 Camera::getFront() {
+	return front;
+}

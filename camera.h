@@ -20,13 +20,13 @@ class Camera : public SDLEventListener {
 	float aspectRatio;
 	bool planeMode;
 	void updateProjection();
+	glm::vec3 position;
+	glm::vec3 motion;
+	glm::vec3 front;
+	glm::vec3 top;
+	glm::vec3 right;
 
 	public:
-		glm::vec3 position;
-		glm::vec3 motion;
-		glm::vec3 front;
-		glm::vec3 top;
-		glm::vec3 right;
 		
 		float sensitivity;
 		float speed;
@@ -49,6 +49,7 @@ class Camera : public SDLEventListener {
 		glm::mat4 getProjection();
 		glm::mat4 getView();
 		glm::vec3 getPosition();
+		glm::vec3 getFront();
 
 		Camera(glm::vec3 _position, glm::vec3 _front, glm::vec3 _top, float _sensitivity, float _FOV, float _speed, float _aspectRatio, bool mode);
 };

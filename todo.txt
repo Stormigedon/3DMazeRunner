@@ -3,5 +3,5 @@
 add better lighting effects
 add method to restart
 add esc menu? 
-improve collision detection on walls
+improve collision detection on walls #NOTE# convert to aabb style check, should solve all my problems
 -%50- the target must glow #just need the walls to block the glow now

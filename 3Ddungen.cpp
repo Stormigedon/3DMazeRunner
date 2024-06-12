@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <cstdlib>
 
 #include "MazeSegment3D.h"
 #include "shader.h"
@@ -152,12 +153,14 @@ cell** generateMaze(int size){
 }
 
 
-int main() {
-	std::cout<<"desired Maze size(min:3, max:25) q to quit"<<std::endl;
+int main(int argc, char** args) {
 	int size;
-	//todo be graceful here :'D
-	std::cin>>size;
-
+	if(argc == 1) {
+		std::cout<<"desired Maze size(min:3, max:25) q to quit"<<std::endl;
+		std::cin>>size;
+	} else {
+		size = std::atoi(args[1]);
+	}
 	//size = 7;
 	if(size > 25) {size = 25;}
 	if(size < 3) {size = 3;}
@@ -241,8 +244,6 @@ int main() {
 		if((camera.getPosition().z - playerY) > 0.30 && (occupiedSection.type & 0b0010)) {
 			camera.setZPosition(playerY + 0.30);
 		}
-
-
 		
 		//debuging collision
 		// std::cout<<"Maze Position: "<<playerX<<","<<playerY<<std::endl;
@@ -256,6 +257,8 @@ int main() {
 		mazeShade.setMat4("projection", camera.getProjection());
 		mazeShade.setMat4("view", camera.getView());
 		mazeShade.setVec3("viewPos", camera.getPosition());
+		mazeShade.setVec3("viewDir", camera.getFront());
+		
 		for(int j = 0; j < size; j++) {
 			for (int i = 0; i < size; i++) {
 				//explicit converstion to the enum type for my maze.  wonder if there's a cleaner looking method for doing this

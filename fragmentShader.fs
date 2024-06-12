@@ -7,6 +7,7 @@ in vec2 TexCords;
 
 
 uniform vec3 viewPos;
+uniform vec3 viewDir;
 uniform vec3 goalPosition;
 uniform bool flashLightOn;
 uniform sampler2D texture1;
@@ -17,6 +18,28 @@ float computeFalloff(float dist){
 	return 1.0 / (k1 + k2 * dist + k3 * dist * dist);
 }
 
+vec3 flashLightCompute(vec3 fDir) {
+	float flashLightInnerCone = 0.998, flashLightOuterCone = 0.97;
+	float viewDot = dot(fDir, -viewDir);
+	float fragDot = dot(fDir, Normal);
+	if(viewDot >= flashLightOuterCone) {
+		if (viewDot >= flashLightInnerCone) {
+			return vec3(0.4,0.4,0.6) * fragDot;
+		} else {
+			//maping from 0 to 1
+			float viewMap = (viewDot - flashLightOuterCone) / (flashLightInnerCone - flashLightOuterCone);
+			//0.8 + 2.40833x - 8x^{2} + 4.79167x^{3}
+			//0.8 + x(2.40833 - 8x + 4.79167x^2)
+			//0.8 + x(2.40833 + x(-8 + 4.79167x))
+			
+			float scale = 0.8 + viewMap * (2.40833 + viewMap * (-8 + 4.79167 * viewMap));
+			return vec3(0.4,0.4,0.7) * fragDot * viewMap;
+		}
+	} else {
+		return vec3(0.0,0.0,0.01);
+	}
+}
+
 void main()
 {	
 	//things with the north wall are birghter
@@ -24,9 +47,9 @@ void main()
 
 	float GlowFalloff = computeFalloff(distance(goalPosition,FragPos)); //mmm math
 	vec3 goalGlow = (max(dot(goalDir, Normal),0.0) * vec3(0.6,0.4,0.2)) * GlowFalloff;
-	vec3 viewDir = normalize(viewPos- FragPos);
-	vec3 magic = dot(viewDir, Normal) * vec3(0.5,0.5,0.5);
-	FragColor = texture(texture1,TexCords) * vec4(magic,1.0);
-	//FragColor = vec4(vec3(0.02) * texture(texture1, TexCords).rgb,1.0);
+	vec3 fragDir = normalize(viewPos- FragPos);
+	//vec3 magic = dot(fragDir, Normal) * vec3(0.5,0.5,0.5);
+	FragColor = texture(texture1,TexCords) * vec4(flashLightCompute(fragDir),1.0);
+	FragColor += vec4(vec3(0.02) * texture(texture1, TexCords).rgb,1.0);
 	FragColor += vec4(goalGlow,0.0);
 };
